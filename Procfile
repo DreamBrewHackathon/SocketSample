@@ -1,1 +1,1 @@
-web: gunicorn -k gevent app:socketio
+web: gunicorn --worker-class gevent app:app
