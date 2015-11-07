@@ -3,14 +3,16 @@
 <head>
     <title>Flask-SocketIO Test</title>
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8">
-        $(document).ready(function(){
-            namespace = '/test'; // change to an empty string to use the global namespace
+        namespace = '/test'; // change to an empty string to use the global namespace
 
-            // the socket.io documentation recommends sending an explicit package upon connection
-            // this is specially important when using the global namespace
-            var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
+        // the socket.io documentation recommends sending an explicit package upon connection
+        // this is specially important when using the global namespace
+        var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+        $(document).ready(function(){
 
             // event handler for server sent data
             // the data is displayed in the "Received" section of the page
@@ -53,7 +55,21 @@
                 socket.emit('disconnect request');
                 return false;
             });
+
+            window.setInterval(function() {
+              printLocation();
+            }, 5000);
         });
+
+        function printLocation() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+          }
+        };
+
+        function showPosition(position) {
+          socket.emit("my broadcast event", {data: "Lat: " + position.coords.latitude + " Long: " + position.coords.longitude });
+        };
     </script>
 </head>
 <body>
@@ -87,6 +103,7 @@
     <form id="disconnect" method="POST" action="#">
         <input type="submit" value="Disconnect">
     </form>
+    <div id="map-canvas"/>
     <h2>Receive:</h2>
     <div id="log"></div>
 </body>
